@@ -9,8 +9,8 @@ const {
 const router = express.Router();
 
 router.post('/register', registerUser);
-router.put('/edit/:id', editUserProfile);
-router.get('/:id', getUserDetails);
-router.delete('/:id', deleteUser);
+router.put('/edit/:userPhoneNumber', editUserProfile);
+router.get('/:userPhoneNumber', getUserDetails);
+router.delete('/:userPhoneNumber', deleteUser);
 
 module.exports = router;
