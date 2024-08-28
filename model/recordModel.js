@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const recordSchema = new mongoose.Schema({
+  recordID: {
+    type: String,
+    unique: true,
+    default: () => new mongoose.Types.ObjectId().toString(),
+  },
   userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
