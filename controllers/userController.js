@@ -56,11 +56,11 @@ exports.editUserProfile = async (req, res) => {
   }
 };
 
-// Get user details by ID
+// Get user details by userPhoneNumber
 exports.getUserDetails = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById(id);
+    const { userPhoneNumber } = req.params;
+    const user = await User.find(userPhoneNumber);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
