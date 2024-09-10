@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const recordSchema = new mongoose.Schema({
   recordID: {
@@ -8,7 +8,11 @@ const recordSchema = new mongoose.Schema({
   },
   userID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
+    required: true,
+  },
+  recordName: {
+    type: String,
     required: true,
   },
   amount: {
@@ -28,8 +32,8 @@ const recordSchema = new mongoose.Schema({
   },
   challanType: {
     type: String,
-    enum: ['overspeeding', 'traffic_violation', 'parking', 'other'],
-    default: 'overspeeding',
+    enum: ["overspeeding", "traffic_violation", "parking", "other"],
+    default: "overspeeding",
   },
   createdAt: {
     type: Date,
@@ -37,6 +41,6 @@ const recordSchema = new mongoose.Schema({
   },
 });
 
-const Record = mongoose.model('Record', recordSchema);
+const Record = mongoose.model("Record", recordSchema);
 
 module.exports = Record;

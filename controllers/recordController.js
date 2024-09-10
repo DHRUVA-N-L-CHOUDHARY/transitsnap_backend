@@ -4,7 +4,7 @@ const User = require('../model/userModel');
 // Add a new record
 exports.addRecord = async (req, res) => {
   try {
-    const { userID, amount, remarks, imageUrl, busNumber, challanType } = req.body;
+    const { userID, recordName, amount, remarks, imageUrl, busNumber, challanType } = req.body;
 
     // Validate required fields
     if (!userID || !amount || !busNumber) {
@@ -18,7 +18,7 @@ exports.addRecord = async (req, res) => {
     }
 
     // Create and save record
-    const record = new Record({ userID, amount, remarks, imageUrl, busNumber, challanType });
+    const record = new Record({ userID, recordName, amount, remarks, imageUrl, busNumber, challanType });
     await record.save();
 
     res.status(201).json({ message: 'Record added successfully', record });
