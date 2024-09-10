@@ -32,7 +32,7 @@ const recordSchema = new mongoose.Schema({
   },
   challanType: {
     type: String,
-    enum: ["overspeeding", "traffic_violation", "parking", "other"],
+    enum: ["overspeeding", "traffic_violation", "parking", "other", ""],
     default: "overspeeding",
   },
   createdAt: {
