@@ -33,20 +33,16 @@ exports.registerUser = async (req, res) => {
 // Edit user profile
 exports.editUserProfile = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { userName, email, phoneNumber, accountType, active } = req.body;
+    const { userId ,userName, imageUrl } = req.body;
 
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Update user fields
     user.userName = userName || user.userName;
-    user.email = email || user.email;
-    user.phoneNumber = phoneNumber || user.phoneNumber;
-    user.accountType = accountType || user.accountType;
-    user.active = typeof active === 'boolean' ? active : user.active;
+    user.imageUrl = imageUrl || user.imageUrl;
 
     await user.save();
     res.json({ message: 'User profile updated', user });

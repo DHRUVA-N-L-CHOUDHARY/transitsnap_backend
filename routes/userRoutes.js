@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 router.post('/register', registerUser);
-router.put('/edit/:userPhoneNumber', editUserProfile);
+router.put('/edit', editUserProfile);
 router.get('/:userPhoneNumber', getUserDetails);
 router.delete('/:userPhoneNumber', deleteUser);
 

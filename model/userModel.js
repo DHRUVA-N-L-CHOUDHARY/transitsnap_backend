@@ -7,13 +7,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  email: {
-    type: String,
-    match: [
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      'Please fill a valid email address',
-    ],
-  },
   phoneNumber: {
     type: String,
     required: true,
@@ -27,6 +20,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['Driver', 'Admin'],
     default: 'Driver',
+  },
+  imageUrl: {
+    type: String,
   },
   active: {
     type: Boolean,
