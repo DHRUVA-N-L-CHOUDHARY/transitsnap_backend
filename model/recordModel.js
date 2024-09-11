@@ -30,6 +30,14 @@ const recordSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  isPaid: {
+    type: Boolean,
+    default: true,
+  },
+  isDelete: {
+    type: Boolean,
+    default: false,
+  },
   challanType: {
     type: String,
     enum: ["overspeeding", "traffic_violation", "parking", "other", ""],
