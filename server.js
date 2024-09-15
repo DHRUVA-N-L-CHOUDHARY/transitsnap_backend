@@ -6,11 +6,11 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const recordRoutes = require("./routes/recordRoutes");
 app.set("json spaces", 5);
+app.use(cors());
 
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
-
 
 
 app.get("/api/v1/", (req, res) => {
