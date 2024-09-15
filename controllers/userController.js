@@ -61,7 +61,7 @@ exports.editUserProfile = async (req, res) => {
 // Get user details with search, filter, and sorting functionality
 exports.getUserDetails = async (req, res) => {
   try {
-    const { search, isActive, sortBy, sortOrder } = req.body;
+    const { search, isActive, sortBy, sortOrder, page = 1, limit = 10 } = req.body;  // Default page 1, limit 10 per page
 
     let searchQuery = {};
     if (search) {
@@ -88,15 +88,33 @@ exports.getUserDetails = async (req, res) => {
       sortQuery[sortField] = sortDirection;
     }
 
-    const users = await User.find({ ...searchQuery, ...filterQuery }).sort(
-      sortQuery
-    );
+    // Convert page and limit to integers
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(limit, 10);
+
+    // Calculate the number of documents to skip based on current page and limit
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Fetch the users with pagination, search, filter, and sort
+    const users = await User.find({ ...searchQuery, ...filterQuery })
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(pageSize);
+
+    // Count total documents for pagination
+    const totalUsers = await User.countDocuments({ ...searchQuery, ...filterQuery });
 
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "No users found" });
     }
 
-    res.json(users);
+    // Send the users along with pagination info
+    res.json({
+      totalUsers,                  // Total number of matching users
+      totalPages: Math.ceil(totalUsers / pageSize), // Total number of pages
+      currentPage: pageNumber,     // Current page number
+      users,                       // Users for the current page
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
