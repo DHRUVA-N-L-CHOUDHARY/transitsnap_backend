@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.post('/add', addRecord);
 router.get('/user/:userID', getRecordsByUserID);
-router.get('/all', getAllRecords);
+router.post('/all', getAllRecords);
 
 module.exports = router;

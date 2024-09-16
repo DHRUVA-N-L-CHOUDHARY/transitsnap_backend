@@ -68,18 +68,48 @@ exports.getRecordsByUserID = async (req, res) => {
   }
 };
 
-// Get all records with pagination for admin
 exports.getAllRecords = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Default to page 1, 10 records per page
+    const { 
+      page = 1, 
+      limit = 10, 
+      search = '', 
+      isPaid, 
+      isDelete, 
+      sortBy = 'createdAt', 
+      sortOrder = 'asc' 
+    } = req.query;
 
-    const records = await Record.find()
+    const filterQuery = {};
+
+    if (search) {
+      filterQuery.$or = [
+        { recordName: { $regex: search, $options: "i" } }, 
+        { busNumber: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    if (isPaid !== undefined) {
+      filterQuery.isPaid = isPaid === true; 
+    }
+
+    if (isDelete !== undefined) {
+      filterQuery.isDelete = isDelete === false; 
+    }
+
+    const sortQuery = {};
+    if (sortBy) {
+      sortQuery[sortBy] = sortOrder === 'desc' ? -1 : 1; 
+    }
+
+    const records = await Record.find(filterQuery)
       .populate("userID", "userName phoneNumber")
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .sort(sortQuery) 
+      .limit(limit * 1) 
+      .skip((page - 1) * limit) 
       .exec();
 
-    const count = await Record.countDocuments();
+    const count = await Record.countDocuments(filterQuery);
 
     res.json({
       records,
@@ -91,3 +121,4 @@ exports.getAllRecords = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
