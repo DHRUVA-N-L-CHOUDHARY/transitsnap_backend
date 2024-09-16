@@ -78,47 +78,57 @@ exports.getAllRecords = async (req, res) => {
       isDelete, 
       sortBy = 'createdAt', 
       sortOrder = 'asc' 
-    } = req.query;
+    } = req.body;
 
+    console.log(req.body); // For debugging
+
+    // Initialize the filter query
     const filterQuery = {};
 
-    if (search) {
+    // If search is not empty, add search conditions
+    if (search && search.trim() !== '') {
       filterQuery.$or = [
-        { recordName: { $regex: search, $options: "i" } }, 
+        { recordName: { $regex: search, $options: "i" } }, // Case-insensitive search
         { busNumber: { $regex: search, $options: "i" } }
       ];
     }
 
+    // Filter by payment status (isPaid)
     if (isPaid !== undefined) {
-      filterQuery.isPaid = isPaid === true; 
+      filterQuery.isPaid = isPaid; // Assuming isPaid is a boolean
     }
 
+    // Filter by active/inactive status (isDelete)
     if (isDelete !== undefined) {
-      filterQuery.isDelete = isDelete === false; 
+      filterQuery.isDelete = isDelete; // Assuming isDelete is a boolean
     }
 
+    // Build sorting query
     const sortQuery = {};
-    if (sortBy) {
-      sortQuery[sortBy] = sortOrder === 'desc' ? -1 : 1; 
-    }
+    sortQuery[sortBy] = sortOrder === 'desc' ? -1 : 1; // Sort by the provided field
 
+    // Fetch records with filters, sorting, and pagination
     const records = await Record.find(filterQuery)
-      .populate("userID", "userName phoneNumber")
-      .sort(sortQuery) 
-      .limit(limit * 1) 
-      .skip((page - 1) * limit) 
+      .populate("userID", "userName phoneNumber") // Populating related user fields
+      .sort(sortQuery) // Apply sorting
+      .limit(parseInt(limit)) // Limit results per page
+      .skip((parseInt(page) - 1) * limit) // Skip to the correct page
       .exec();
 
+    // Count the total number of matching records for pagination
     const count = await Record.countDocuments(filterQuery);
 
+    // Return the results along with pagination info
     res.json({
       records,
+      totalRecords: count,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching records:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 

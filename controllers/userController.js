@@ -121,19 +121,6 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
-// Get all user details
-exports.getAllUsers = async (res) => {
-  try {
-    const users = await User.find({ accountType: "Driver" }); // Fetches all user records
-    if (!users || users.length === 0) {
-      return res.status(404).json({ message: "No users found" });
-    }
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 // Delete user by ID
 exports.deleteUser = async (req, res) => {
