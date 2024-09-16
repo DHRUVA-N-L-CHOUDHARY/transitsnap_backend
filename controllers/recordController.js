@@ -82,10 +82,8 @@ exports.getAllRecords = async (req, res) => {
 
     console.log(req.body); // For debugging
 
-    // Initialize the filter query
     const filterQuery = {};
 
-    // If search is not empty, add search conditions
     if (search && search.trim() !== '') {
       filterQuery.$or = [
         { recordName: { $regex: search, $options: "i" } }, // Case-insensitive search
@@ -93,21 +91,17 @@ exports.getAllRecords = async (req, res) => {
       ];
     }
 
-    // Filter by payment status (isPaid)
     if (isPaid !== undefined) {
       filterQuery.isPaid = isPaid; // Assuming isPaid is a boolean
     }
 
-    // Filter by active/inactive status (isDelete)
     if (isDelete !== undefined) {
       filterQuery.isDelete = isDelete; // Assuming isDelete is a boolean
     }
 
-    // Build sorting query
     const sortQuery = {};
     sortQuery[sortBy] = sortOrder === 'desc' ? -1 : 1; // Sort by the provided field
 
-    // Fetch records with filters, sorting, and pagination
     const records = await Record.find(filterQuery)
       .populate("userID", "userName phoneNumber") // Populating related user fields
       .sort(sortQuery) // Apply sorting
@@ -115,7 +109,6 @@ exports.getAllRecords = async (req, res) => {
       .skip((parseInt(page) - 1) * limit) // Skip to the correct page
       .exec();
 
-    // Count the total number of matching records for pagination
     const count = await Record.countDocuments(filterQuery);
 
     // Return the results along with pagination info
@@ -131,4 +124,72 @@ exports.getAllRecords = async (req, res) => {
   }
 };
 
+exports.getTotalRecords = async (req, res) => {
+  try {
+    // Fetch the total number of records
+    const totalRecords = await Record.countDocuments();
+
+    // Return the result in JSON format
+    res.status(200).json({
+      totalRecords,
+    });
+  } catch (error) {
+    console.error("Error fetching total records:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.markAsDeleted = async (req, res) => {
+  try {
+    const { id } = req.body; // Get the record ID from the URL parameters
+
+    // Find the record by ID and update the isDelete field to true
+    const updatedRecord = await Record.findByIdAndUpdate(
+      id, 
+      { isDelete: true }, // Set isDelete to true
+      { new: true } // Return the updated document
+    );
+
+    // If record not found
+    if (!updatedRecord) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    // Respond with the updated record
+    res.status(200).json({
+      message: "Record marked as deleted successfully",
+      updatedRecord,
+    });
+  } catch (error) {
+    console.error("Error marking record as deleted:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.markAsPaid = async (req, res) => {
+  try {
+    const { id } = req.body; // Get the record ID from the URL parameters
+
+    // Find the record by ID and update the isPaid field to true
+    const updatedRecord = await Record.findByIdAndUpdate(
+      id, 
+      { isPaid: true }, // Set isPaid to true
+      { new: true } // Return the updated document
+    );
+
+    // If record not found
+    if (!updatedRecord) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    // Respond with the updated record
+    res.status(200).json({
+      message: "Record marked as paid successfully",
+      updatedRecord,
+    });
+  } catch (error) {
+    console.error("Error marking record as paid:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 

@@ -121,6 +121,21 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
+exports.getTotalUsers = async (req, res) => {
+  try {
+    // Fetch the total number of users
+    const totalUsers = await User.countDocuments();
+
+    // Return the result in JSON format
+    res.status(200).json({
+      totalUsers,
+    });
+  } catch (error) {
+    console.error("Error fetching total users:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // Delete user by ID
 exports.deleteUser = async (req, res) => {
