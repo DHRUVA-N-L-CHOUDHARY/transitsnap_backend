@@ -192,3 +192,30 @@ exports.markAsPaid = async (req, res) => {
   }
 };
 
+
+exports.markAsNotPaid = async (req, res) => {
+  try {
+    const { id } = req.body; // Get the record ID from the URL parameters
+
+    // Find the record by ID and update the isPaid field to true
+    const updatedRecord = await Record.findByIdAndUpdate(
+      id, 
+      { isPaid: false }, // Set isPaid to true
+      { new: true } // Return the updated document
+    );
+
+    // If record not found
+    if (!updatedRecord) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    // Respond with the updated record
+    res.status(200).json({
+      message: "Record marked as paid successfully",
+      updatedRecord,
+    });
+  } catch (error) {
+    console.error("Error marking record as paid:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
