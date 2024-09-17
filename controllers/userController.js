@@ -122,7 +122,7 @@ exports.getUserDetails = async (req, res) => {
 
     let filterQuery = {};
     if (active !== undefined) {
-      filterQuery.active = active == true;
+      filterQuery.active = active;
     }
 
     let sortQuery = {};
