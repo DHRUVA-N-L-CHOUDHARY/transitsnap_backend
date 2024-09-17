@@ -100,7 +100,7 @@ exports.getUserDetails = async (req, res) => {
   try {
     const {
       search,
-      isActive,
+      active,
       sortBy,
       sortOrder,
       page = 1,
@@ -121,8 +121,8 @@ exports.getUserDetails = async (req, res) => {
     }
 
     let filterQuery = {};
-    if (isActive !== undefined) {
-      filterQuery.active = isActive == true;
+    if (active !== undefined) {
+      filterQuery.active = active == true;
     }
 
     let sortQuery = {};
