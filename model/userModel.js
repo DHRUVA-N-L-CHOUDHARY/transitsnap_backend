@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
+    default:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7U_ef87Q7CQ1Fx_khkPq-y9IfPmBWrMZ6ig&s"
   },
   active: {
     type: Boolean,

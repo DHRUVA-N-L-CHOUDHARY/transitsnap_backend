@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { userName, email, phoneNumber, accountType } = req.body;
+    const { userName, phoneNumber, accountType, imageUrl } = req.body;
 
     // Validate required fields
     if (!userName || !phoneNumber) {
@@ -23,7 +23,7 @@ exports.registerUser = async (req, res) => {
     }
 
     // Create and save user
-    const user = new User({ userName, email, phoneNumber, accountType });
+    const user = new User({ userName, phoneNumber, accountType, imageUrl });
     user.token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "5d",
     });
@@ -58,10 +58,54 @@ exports.editUserProfile = async (req, res) => {
   }
 };
 
+
+exports.getUserDetailsByPhoneNumber = async (req, res) => {
+  try {
+    const { phoneNumber } = req.params;
+
+    // Validate if phoneNumber is provided
+    if (!phoneNumber) {
+      return res.status(400).json({ message: 'Phone number is required.' });
+    }
+
+    // Validate the phone number format (assuming a 10-digit number)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return res.status(400).json({ message: 'Invalid phone number format. It should be a 10-digit number.' });
+    }
+
+    // Fetch user by phone number
+    const user = await User.findOne({ phoneNumber });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (!user.active) {
+      return res.status(403).json({ message: 'User is inactive.' });
+    }
+
+    // Return user details if found
+    res.status(200).json({
+      message: 'User details fetched successfully.',
+      user,
+    });
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Get user details with search, filter, and sorting functionality
 exports.getUserDetails = async (req, res) => {
   try {
-    const { search, isActive, sortBy, sortOrder, page = 1, limit = 10 } = req.body;  // Default page 1, limit 10 per page
+    const {
+      search,
+      isActive,
+      sortBy,
+      sortOrder,
+      page = 1,
+      limit = 10,
+    } = req.body; // Default page 1, limit 10 per page
 
     let searchQuery = {};
     if (search) {
@@ -78,7 +122,7 @@ exports.getUserDetails = async (req, res) => {
 
     let filterQuery = {};
     if (isActive !== undefined) {
-      filterQuery.active = isActive;
+      filterQuery.active = isActive == true;
     }
 
     let sortQuery = {};
@@ -102,7 +146,10 @@ exports.getUserDetails = async (req, res) => {
       .limit(pageSize);
 
     // Count total documents for pagination
-    const totalUsers = await User.countDocuments({ ...searchQuery, ...filterQuery });
+    const totalUsers = await User.countDocuments({
+      ...searchQuery,
+      ...filterQuery,
+    });
 
     if (!users || users.length === 0) {
       return res.status(404).json({ message: "No users found" });
@@ -110,10 +157,10 @@ exports.getUserDetails = async (req, res) => {
 
     // Send the users along with pagination info
     res.json({
-      totalUsers,                  // Total number of matching users
+      totalUsers, // Total number of matching users
       totalPages: Math.ceil(totalUsers / pageSize), // Total number of pages
-      currentPage: pageNumber,     // Current page number
-      users,                       // Users for the current page
+      currentPage: pageNumber, // Current page number
+      users, // Users for the current page
     });
   } catch (error) {
     console.error(error);
@@ -136,20 +183,49 @@ exports.getTotalUsers = async (req, res) => {
   }
 };
 
-
 // Delete user by ID
 exports.deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById(id);
+    const { phoneNumber } = req.params;
+    const user = await User.findOne({ phoneNumber });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    
+    user.active = false;
+    await user.save();
 
-    await user.deleteOne();
     res.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+exports.reactivateUser = async (req, res) => {
+  try {
+    const { phoneNumber } = req.params;
+
+    // Find the user by phone number
+    const user = await User.findOne({ phoneNumber });
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Reactivate the user if they are inactive
+    if (!user.active) {
+      user.active = true;
+      await user.save();
+
+      return res.status(200).json({ message: "User reactivated successfully." });
+    }
+
+    // If user is already active
+    res.status(400).json({ message: "User is already active." });
+  } catch (error) {
+    console.error("Error reactivating user:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
