@@ -16,10 +16,10 @@ exports.addRecord = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!userID || !amount || !busNumber) {
-      return res
-        .status(400)
-        .json({ message: "userID, amount, and busNumber are required." });
+    if (!userID || !recordName || !amount || !busNumber) {
+      return res.status(400).json({
+        message: "userID, recordName, amount, and busNumber are required."
+      });
     }
 
     // Check if user exists
@@ -80,7 +80,6 @@ exports.getAllRecords = async (req, res) => {
       sortOrder = 'asc' 
     } = req.body;
 
-    console.log(req.body); // For debugging
 
     const filterQuery = {};
 

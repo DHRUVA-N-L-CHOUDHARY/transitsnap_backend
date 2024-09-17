@@ -21,9 +21,11 @@ const recordSchema = new mongoose.Schema({
   },
   remarks: {
     type: String,
+    default:""
   },
   imageUrl: {
     type: String,
+    default:"https://static.vecteezy.com/system/resources/previews/000/421/699/non_2x/vector-documents-icon.jpg"
   },
   busNumber: {
     type: String,
