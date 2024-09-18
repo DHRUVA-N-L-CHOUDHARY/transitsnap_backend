@@ -53,7 +53,7 @@ exports.getRecordsByUserID = async (req, res) => {
   try {
     const { userID } = req.params;
 
-    const records = await Record.find({ userID });
+    const records = await Record.find({ userID, isDelete: false });
 
     if (records.length === 0) {
       return res
